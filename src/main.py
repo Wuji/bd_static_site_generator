@@ -97,30 +97,50 @@ def text_to_textnodes(text):
     new_nodes = split_nodes_link(new_nodes)
     return new_nodes
 
+def markdown_to_blocks(markdown):
+    return markdown.split("\n\n")
+
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_unordered_list = "uo_list"
+block_type_ordered_list = "o_list"
+
+
+def block_to_block_type(markdown_block):
+
+    # Headings: Start with 1-6 # followed by a space and then Text
+    if markdown_block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        return block_type_heading
+    # Code blocks must start with 3 backticks and end with 3 backticks.
+    if markdown_block.startswith("```") and markdown_block.endswith("```"):
+        return block_type_code
+    # qote block starts with >
+    if all(list(map(lambda x: x.startswith(">"), markdown_block.split("\n")))):
+        return block_type_quote
+    # unordered list starts with * or -
+    if all(list(map(lambda x: x.startswith(("* ", "- ")), markdown_block.split("\n")))):
+        return block_type_unordered_list
+    # ordered list starts with number followed by . Number must start with 1 and increment by 1 for each line
+    ordered = False
+    list_lines = markdown_block.split("\n")
+    for i in range(0, len(list_lines)):
+        if list_lines[i].startswith(f"{i+1}. "):
+            ordered = True
+        else:
+            ordered = False
+            break
+    if ordered:
+        return block_type_ordered_list
+    # othwise normal paragraph
+    return block_type_paragraph
+
 
 def main():
     # TODO Extract into texts
     # print(TextNode("This is a text node", "bold", "https://www.boot.dev"))
-    text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
-
-    expected_list = [
-    TextNode("This is ", text_type_text),
-    TextNode("text", text_type_bold),
-    TextNode(" with an ", text_type_text),
-    TextNode("italic", text_type_italic),
-    TextNode(" word and a ", text_type_text),
-    TextNode("code block", text_type_code),
-    TextNode(" and an ", text_type_text),
-    TextNode("image", text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
-    TextNode(" and a ", text_type_text),
-    TextNode("link", text_type_link, "https://boot.dev"),
-        ]
-
-    new_nodes = text_to_textnodes(text)
-
-    print("Result: ")
-    for node in new_nodes:
-        print(f"  Node: {node}")
+    print("----Main----")
 
 if __name__ == "__main__":
     main()
